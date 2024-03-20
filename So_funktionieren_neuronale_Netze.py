@@ -1,10 +1,10 @@
 from manim import Scene, ThreeDScene
-from manim import Code, Text, MathTex, SVGMobject, Circle, Arrow, Arrow3D
+from manim import Code, Text, MathTex, SVGMobject, Circle, Arrow, Arrow3D, Rectangle, Line
 from manim import Axes, ThreeDAxes, VGroup, Surface
 from manim import FadeIn, Create, GrowArrow, DrawBorderThenFill, Write
 from manim import Transform, TransformMatchingTex, MoveToTarget
 from manim import FadeOut, Unwrite, Uncreate
-from manim import UP, DOWN, LEFT, RIGHT, BLACK, RED, GREEN, BLUE, ORANGE, YELLOW, DEGREES, ORIGIN
+from manim import UP, DOWN, LEFT, RIGHT, BLACK, RED, GREEN, BLUE, ORANGE, YELLOW, WHITE, DEGREES, ORIGIN
 from manim import config as global_config
 import numpy as np
 
@@ -15,7 +15,7 @@ class NeuronAnimation(Scene):
         bio_neuron = SVGMobject(file_name="/home/pina/Dokumente/Artikel/Neuronale Netze erklärt/BioNeuron.svg",
                                 should_center=True, height=7, fill_opacity=1.0, stroke_width=1.5)
         self.play(DrawBorderThenFill(bio_neuron), run_time=2.0)
-        self.wait(duration=1)
+        self.wait(duration=5)
         bio_neuron.save_state()
         self.play(bio_neuron.animate.set_color(RED), run_time=0.05)
         self.play(bio_neuron.animate.restore(), run_time=0.2)
@@ -232,12 +232,14 @@ class LossAnimation(Scene):
         self.camera.background_color = '#404040'
         loss_formula = MathTex(r"Loss(", r"y', y", r") = ", r"(", r"y'", r" - ", r"y", r")^{2}")
         self.wait(duration=0.5)
-        self.play(Write(loss_formula), run_time=3.0)
-        self.wait(duration=1.0)
+        self.play(Write(loss_formula), run_time=7.5)
+        self.wait(duration=4.0)
         loss_formula_sum = MathTex(r"Loss(", r"\vec{y'}, \vec{y}", r") = ", r'\sum_{i=0}^{n}', r"(", r"y'_{i}", r" - ",
                                    r"y_{i}", r")^{2}")
-        self.play(TransformMatchingTex(loss_formula, loss_formula_sum), run_time=1.0)
-        self.wait(duration=1.0)
+        self.play(TransformMatchingTex(loss_formula, loss_formula_sum), run_time=2.0)
+        self.wait(duration=4.0)
+        self.play(Unwrite(loss_formula_sum), run_time=2.0)
+        self.wait(duration=2.0)
 
 
 class Loss3DPlotAnimation(ThreeDScene):
@@ -246,7 +248,7 @@ class Loss3DPlotAnimation(ThreeDScene):
         self.camera.background_color = '#404040'
         resolution_fa = 24 * 2
         self.set_camera_orientation(phi=75 * DEGREES, theta=-80 * DEGREES, frame_center=1 * UP)
-        self.begin_3dillusion_camera_rotation(rate=3.0)
+        self.begin_3dillusion_camera_rotation(rate=.5)
         dataset = np.array([[0, 0, 0],
                             [0, 0, 0],
                             [1, 0, 0],
@@ -275,36 +277,190 @@ class Loss3DPlotAnimation(ThreeDScene):
             colorscale=[BLUE, GREEN, YELLOW, ORANGE, RED]
         )
 
-        self.play(Write(axes), Write(labels), run_time=2.0)
-        self.play(Create(loss_plane), run_time=10.0)
-        self.wait(2.0)
+        self.play(Write(axes), Write(labels), run_time=3.0)
+        self.play(Create(loss_plane), run_time=12.0)
+        self.wait(15.0+11.0+9.0)
 
         def pp(x, y):
             return axes.c2p(x, y, loss(x, y))
 
-        arr = Arrow3D(pp(0.8, 0.07),
+        arr = Arrow3D(pp(0.7, 0.03),
                       pp(.05, -0.005),
                       color=RED)
-        self.play(Create(arr), run_time=0.5)
-        self.wait(2.5)
+        self.play(Create(arr), run_time=4.0)
+        self.wait(3.0)
         arr2 = Arrow3D(pp(.05, -0.005),
                        pp(1.15, -0.02),
                        color=RED)
-        self.play(Create(arr2), run_time=0.5)
-        self.wait(2)
+        self.play(Create(arr2), run_time=2.5)
+        self.wait(1.5)
         arr3 = Arrow3D(pp(1.15, -0.02),
                        pp(1.0, -0.05),
                        color=RED)
         self.play(Create(arr3), run_time=0.5)
-        self.wait(1.5)
+        self.wait(1.0)
         arr4 = Arrow3D(pp(1.0, -0.05),
                        pp(.78, -0.048),
                        color=RED)
         self.play(Create(arr4), run_time=0.5)
-        self.wait(6.0)
+        self.wait(1.0)
 
         self.play(Uncreate(loss_plane), Uncreate(arr4), Uncreate(arr3), Uncreate(arr2), Uncreate(arr),
-                  run_time=2.0)
-        self.play(Unwrite(axes), Unwrite(labels), run_time=2.0)
+                  run_time=1.0)
+        self.play(Unwrite(axes), Unwrite(labels), run_time=1.0)
         self.stop_3dillusion_camera_rotation()
-        self.wait(duration=1.0)
+        self.wait(duration=0.1)
+
+class TimelineAnimation(Scene):
+    def construct(self):
+        self.camera.background_color = '#404040'
+        axes = Axes(
+            x_range=[1940, 2024, 10],
+            x_length=10,
+            y_length=0,
+            axis_config={"color": GREEN},
+            x_axis_config={
+                "numbers_to_include": np.arange(1940, 2024, 20),
+                "decimal_number_config": {"group_with_commas": False, "num_decimal_places": 0}
+            },
+            y_axis_config={
+                "length": 0,
+                "color": '#404040'
+            },
+            tips=False,
+        )
+        axes_labels = axes.get_axis_labels(x_label="Jahr", y_label="")
+        labels = VGroup(axes_labels)
+        self.play(Create(axes), Write(labels), run_time=1.5)
+        self.wait(.5)
+        print()
+        dot1 = Circle(radius=.1, color=BLUE, fill_color=BLUE, fill_opacity=1.0).move_to(
+            axes.coords_to_point(1951, .2))
+        snarc = Text("Marvin Minsky:\n        Snarc", font_size=24).move_to(axes.coords_to_point(1951, .8))
+        self.play(Create(dot1), run_time=0.5)
+        self.play(Write(snarc), run_time=1.5)
+        self.wait(8.0)
+        dot2 = Circle(radius=.1, color=BLUE, fill_color=BLUE, fill_opacity=1.0).move_to(
+            axes.coords_to_point(1985, .2))
+        backprop = Text("Backpropagation\n        of Error", font_size=24).move_to(axes.coords_to_point(1985, .8))
+        self.play(Create(dot2), run_time=0.5)
+        self.play(Write(backprop), run_time=1.5)
+        self.wait(5.0)
+
+class StructureAnimation(Scene):
+    def construct(self):
+        self.camera.background_color = '#404040'
+        visible_elements = []
+        def draw_diagram(layers, offset=0.0):
+            new_elements = []
+            for layer_no, layer_width in enumerate(layers):
+                rect = Rectangle(width=layer_width, height=.1, fill_color=YELLOW, fill_opacity=1).move_to(
+                    3 * DOWN + layer_no * 6 / len(layers) * UP + offset * RIGHT)
+                new_elements += [(rect, Create, Uncreate)]
+                if layer_no < len(layers) - 1:
+                    line1 = Line(2.95 * DOWN + layer_no * 6 / len(layers) * UP + layer_width / 2 * LEFT + offset * RIGHT,
+                                 3.05 * DOWN + (layer_no + 1) * 6 / len(layers) * UP + layers[layer_no + 1] / 2 * LEFT + offset * RIGHT)
+                    line2 = Line(2.95 * DOWN + layer_no * 6 / len(layers) * UP + layer_width / 2 * RIGHT + offset * RIGHT,
+                                 3.05 * DOWN + (layer_no + 1) * 6 / len(layers) * UP + layers[layer_no + 1] / 2 * RIGHT + offset * RIGHT)
+                    new_elements += [(line1, Write, Unwrite), (line2, Write, Unwrite)]
+            return new_elements
+
+        new_elements = [
+            (Line(3 * DOWN + -1 * RIGHT, 1 * DOWN + -1 * RIGHT), Write, Unwrite),
+            (Line(3 * DOWN + -1 * RIGHT, 1 * DOWN + 1 * RIGHT), Write, Unwrite),
+            (Line(3 * DOWN + 1 * RIGHT, 1 * DOWN + -1 * RIGHT), Write, Unwrite),
+            (Line(3 * DOWN + 1 * RIGHT, 1 * DOWN + 1 * RIGHT), Write, Unwrite),
+            (Line(1 * DOWN + -1 * RIGHT, -1 * DOWN + 0 * RIGHT), Write, Unwrite),
+            (Line(1 * DOWN + 1 * RIGHT, -1 * DOWN + 0 * RIGHT), Write, Unwrite),
+            (Circle(radius=.1, color=WHITE, fill_color=YELLOW, fill_opacity=1).move_to(3 * DOWN + -1 * RIGHT), Create, Uncreate),
+            (Circle(radius=.1, color=WHITE, fill_color=YELLOW, fill_opacity=1).move_to(3 * DOWN + 1 * RIGHT), Create, Uncreate),
+            (Circle(radius=.1, color=WHITE, fill_color=YELLOW, fill_opacity=1).move_to(1 * DOWN + -1 * RIGHT), Create, Uncreate),
+            (Circle(radius=.1, color=WHITE, fill_color=YELLOW, fill_opacity=1).move_to(1 * DOWN + 1 * RIGHT), Create, Uncreate),
+            (Circle(radius=.1, color=WHITE, fill_color=YELLOW, fill_opacity=1).move_to(-1 * DOWN + 0 * RIGHT), Create, Uncreate)
+        ]
+        self.play(*[O(e) for e, _, O in visible_elements],
+                  *[O(e) for e, O, _ in new_elements],
+                  run_time=2.0)
+        visible_elements = new_elements
+        self.wait(2.0)
+        new_diagram = draw_diagram([10, 10, 1])
+        self.play(*[O(e) for e, _, O in visible_elements],
+                  *[O(e) for e, O, _ in new_diagram],
+                  run_time=2.0)
+        visible_elements = new_diagram
+        self.wait(2.0)
+        new_diagram = draw_diagram([9, 10, 2])
+        self.play(*[O(e) for e, _, O in visible_elements],
+                  *[O(e) for e, O, _ in new_diagram],
+                  run_time=2.0)
+        visible_elements = new_diagram
+        self.wait(1.0)
+        new_diagram = draw_diagram([10, 8, 5])
+        self.play(*[O(e) for e, _, O in visible_elements],
+                  *[O(e) for e, O, _ in new_diagram],
+                  run_time=2.0)
+        visible_elements = new_diagram
+        self.wait(1.0)
+        new_diagram = draw_diagram([7, 10, 6])
+        self.play(*[O(e) for e, _, O in visible_elements],
+                  *[O(e) for e, O, _ in new_diagram],
+                  run_time=2.0)
+        visible_elements = new_diagram
+        self.wait(4.0)
+        new_diagram = draw_diagram([9, 10, 8, 6, 4, 2])
+        self.play(*[O(e) for e, _, O in visible_elements],
+                  *[O(e) for e, O, _ in new_diagram],
+                  run_time=2.0)
+        visible_elements = new_diagram
+        self.wait(1.0)
+        new_diagram = draw_diagram([9, 7, 5, 3, 1, 3, 5, 7, 9])
+        self.play(*[O(e) for e, _, O in visible_elements],
+                  *[O(e) for e, O, _ in new_diagram],
+                  run_time=2.0)
+        visible_elements = new_diagram
+        self.wait(1.0)
+        new_diagram = draw_diagram([5, 4, 3, 2, 1], offset=-2.6) + draw_diagram([5, 4, 3, 2, 1], offset=2.6)
+        new_diagram += [(Rectangle(width=.1, height=1, fill_color=YELLOW, fill_opacity=1).move_to(3 * UP), Create, Uncreate),
+                        (Line(2.95 * DOWN + 4 * 6 / 5 * UP + 1 / 2 * LEFT + -2.6 * RIGHT,
+                              3.5 * UP + -0.05 * RIGHT), Write, Unwrite),
+                        (Line(2.95 * DOWN + 4 * 6 / 5 * UP + 1 / 2 * RIGHT + -2.6 * RIGHT,
+                              2.5 * UP + -0.05 * RIGHT), Write, Unwrite),
+                        (Line(2.95 * DOWN + 4 * 6 / 5 * UP + 1 / 2 * LEFT + 2.6 * RIGHT,
+                              2.5 * UP + 0.05 * RIGHT), Write, Unwrite),
+                        (Line(2.95 * DOWN + 4 * 6 / 5 * UP + 1 / 2 * RIGHT + 2.6 * RIGHT,
+                              3.5 * UP + 0.05 * RIGHT), Write, Unwrite)]
+        self.play(*[O(e) for e, _, O in visible_elements],
+                  *[O(e) for e, O, _ in new_diagram],
+                  run_time=2.0)
+        visible_elements = new_diagram
+        self.wait(1.0)
+        extra_lines = [
+            (Line(3 * DOWN + i * 6 / 5 * UP + width / 2 * RIGHT + -2.6 * RIGHT,
+                  3 * DOWN + i * 6 / 5 * UP + width / 2 * LEFT + 2.6 * RIGHT), Write, Unwrite)
+            for i, width in enumerate([5, 4, 3, 2, 1])
+        ]
+        self.play(*[O(e) for e, O, _ in extra_lines],
+                  run_time=2.0)
+        visible_elements += extra_lines
+        self.wait(1.0)
+        import random
+        for _ in range(10):
+            new_diagram = draw_diagram([random.randint(1, 10) for _ in range(random.randint(3, 20))])
+            self.play(*[O(e) for e, _, O in visible_elements],
+                      *[O(e) for e, O, _ in new_diagram],
+                      run_time=1.0)
+            visible_elements = new_diagram
+            self.wait(.6)
+        self.play(*[O(e) for e, _, O in visible_elements],
+                  run_time=1.0)
+        self.wait(1.0)
+
+class AndreaTextAnimation(Scene):
+    def construct(self):
+        name = Text("Andrea Trinkwalder", font_size=35.9).move_to(3 * DOWN + 4 * LEFT)
+        desc = Text("von Haus aus Mathematikerin", font_size=24).next_to(name, DOWN)
+        self.play(Write(name), run_time=1.0)
+        self.play(Write(desc), run_time=1.0)
+        self.wait(2.0)
+        self.play(Unwrite(name), Unwrite(desc), run_time=1.0)
+
